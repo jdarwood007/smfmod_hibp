@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
+<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+	<id>SleePy:HibP</id>
+	<name>Have-I-Been-Pwned</name>
+	<version>1.0</version>
+	<type>modification</type>
+
+	<install for="2.1.*">
+		<require-file name="language/Hibp.english.php" destination="$themes_dir/default/languages" />
+		<require-file name="Hibp.php" destination="$sourcedir" />
+
+		<!-- All the hooks -->
+		<hook hook="integrate_validatePassword" function="hibp_validatePassword" file="$sourcedir/Hibp.php" />
+		<hook hook="integrate_setup_profile_context" function="hibp_setup_profile_context" file="$sourcedir/Hibp.php" />
+		<hook hook="integrate_load_custom_profile_fields" function="hibp_validatePassword" file="$sourcedir/Hibp.php" />
+		<hook hook="integrate_general_security_settings" function="hibp_general_security_settings" file="$sourcedir/Hibp.php" />
+
+		<redirect url="$scripturl?action=admin;area=serversettings;sa=security;$session_var=$session_id" />
+	</install>
+
+	<uninstall for="2.1.*">
+		<!-- All the hooks, removed -->
+		<hook reverse="true" hook="integrate_validatePassword" function="hibp_validatePassword" file="$sourcedir/Hibp.php" />
+		<hook reverse="true" hook="integrate_setup_profile_context" function="hibp_setup_profile_context" file="$sourcedir/Hibp.php" />
+		<hook reverse="true" hook="integrate_load_custom_profile_fields" function="hibp_validatePassword" file="$sourcedir/Hibp.php" />
+		<hook reverse="true" hook="integrate_general_security_settings" function="hibp_general_security_settings" file="$sourcedir/Hibp.php" />
+
+		<!-- language files, removed -->
+		<remove-file name="$themes_dir/default/languages/Hibp.english.php" />
+
+		<!-- source files, removed -->
+		<remove-file name="$sourcedir/Hibp.php" />
+	</uninstall>
+
+</package-info>
