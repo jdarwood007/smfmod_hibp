@@ -3,7 +3,7 @@
  * The Main file for Hibp
  * @package Hibp
  * @author SleePy <sleepy @ simplemachines (dot) org>
- * @copyright 2021
+ * @copyright 2022
  * @license 3-Clause BSD https://opensource.org/licenses/BSD-3-Clause
  * @version 1.0
  */
