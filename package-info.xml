@@ -6,15 +6,51 @@
 	<version>1.0</version>
 	<type>modification</type>
 
-	<install for="2.1.*">
+	<install for="3.0 Alpha 1">
 		<!-- language files -->
-		<require-file name="language/Hibp.english.php" destination="$themes_dir/default/languages" />
+		<require-file name="Language/Hibp.english.php" destination="$themes_dir/default/languages" />
 
 		<!-- script files -->
 		<require-file name="sha1.js" destination="$themes_dir/default/scripts" />
 
 		<!-- source files -->
-		<require-file name="Hibp.php" destination="$sourcedir" />
+		<require-file name="SMF3.0/Hibp.php" destination="$sourcedir" />
+
+		<!-- All the hooks -->
+		<hook hook="integrate_validatePassword" function="hibp::validatePassword" file="$sourcedir/Hibp.php" />
+		<hook hook="integrate_setup_profile_context" function="hibp::addToProfileContext" file="$sourcedir/Hibp.php" />
+		<hook hook="integrate_load_custom_profile_fields" function="hibp::addToRegistrationPage" file="$sourcedir/Hibp.php" />
+		<hook hook="integrate_general_security_settings" function="hibp::addToGeneralSecuritySettings" file="$sourcedir/Hibp.php" />
+
+		<redirect url="$scripturl?action=admin;area=serversettings;sa=security;$session_var=$session_id" />
+	</install>
+
+	<uninstall for="3.0 Alpha 1">
+		<!-- All the hooks, removed -->
+		<hook reverse="true" hook="integrate_validatePassword" function="hibp_validatePassword" file="$sourcedir/Hibp.php" />
+		<hook reverse="true" hook="integrate_setup_profile_context" function="hibp_setup_profile_context" file="$sourcedir/Hibp.php" />
+		<hook reverse="true" hook="integrate_load_custom_profile_fields" function="hibp_load_custom_profile_fields" file="$sourcedir/Hibp.php" />
+		<hook reverse="true" hook="integrate_general_security_settings" function="hibp_general_security_settings" file="$sourcedir/Hibp.php" />
+
+		<!-- script files, removed -->
+		<remove-file name="$themes_dir/default/scripts/sha1.js" />
+
+		<!-- language files, removed -->
+		<remove-file name="$themes_dir/default/languages/Hibp.english.php" />
+
+		<!-- source files, removed -->
+		<remove-file name="$sourcedir/Hibp.php" />
+	</uninstall>
+
+	<install for="2.1.*">
+		<!-- language files -->
+		<require-file name="Language/Hibp.english.php" destination="$themes_dir/default/languages" />
+
+		<!-- script files -->
+		<require-file name="sha1.js" destination="$themes_dir/default/scripts" />
+
+		<!-- source files -->
+		<require-file name="SMF2.1/Hibp.php" destination="$sourcedir" />
 
 		<!-- All the hooks -->
 		<hook hook="integrate_validatePassword" function="hibp_validatePassword" file="$sourcedir/Hibp.php" />
