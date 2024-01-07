@@ -11,12 +11,10 @@
 #namespace SMF\Mod\ErrorPopup;
 
 use SMF\Config;
-use SMF\Db\DatabaseApi as Db;
 use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
-use SMF\WebFetch;
 
 class hibp
 {
@@ -29,9 +27,10 @@ class hibp
 	 */
 	public static function checkPassword(string $password, bool $hashed = false): ?bool
 	{
-		if (!$hashed)
+		if (!$hashed) {
 			$password = sha1($password);
-	
+		}
+
 		$passhash_prefix = Utils::entitySubstr($password, 0, 5);
 		$passhash_suffix = Utils::entitySubstr($password, 5);
 
@@ -44,21 +43,25 @@ class hibp
 		$results = WebFetchApi::fetch($call_url);
 
 		// Invalid results, just pass them through.
-		if (empty($results))
+		if (empty($results)) {
 			return null;
+		}
 
 		// Sure we could make an array of the data, but we just want to see if its found.
 		$found = preg_match(
 			'~\s+' . preg_quote($passhash_suffix) . ':\d+~i',
-			$results
-			);
+			$results,
+		);
 
 		// We found a result, its found.
-		if ($found === 1)
+		if ($found === 1) {
 			return true;
+		}
+
 		// No result, return false.
-		elseif ($found === 0)
+		if ($found === 0) {
 			return false;
+		}
 
 		// $found returned something invalid, also fail.
 		return null;
@@ -72,20 +75,19 @@ class hibp
 	 * @param string $username Currently ignored by this hook.
 	 * @param array $restrict_in Currently ignored by this hook.
 	 * @param string $pass_error A password error if any.  If this is set, we won't process our hook.
-	 * @return void
 	 */
 	public static function validatePassword(string $password, string $username, array $restrict_in, string &$pass_error): void
 	{
 		// If another hook has set this, leave it alone.
-		if (!empty($pass_error) || empty(Config::$modSettings['enableHibP']))
+		if (!empty($pass_error) || empty(Config::$modSettings['enableHibP'])) {
 			return;
+		}
 
 		// Send it to the backend.
 		$res = self::checkPassword($password);
 
 		// If the result is true, we want to present a error to the prefix of $txt['profile_error_password_*']
-		if ($res === true)
-		{
+		if ($res === true) {
 			Lang::load('Hibp');
 			$pass_error = 'hibp';
 		}
@@ -96,32 +98,32 @@ class hibp
 	 *
 	 * @calledby call_integration_hook('integrate_load_custom_profile_fields', array($memID, $area));
 	 * @param array $fields User profile fields we are loading.
-	 * @return void
 	 */
 	public static function addToRegistrationPage(int $memID, string $area): void
 	{
-		if ($area !== 'register' || empty(Config::$modSettings['enableHibPjs']))
+		if ($area !== 'register' || empty(Config::$modSettings['enableHibPjs'])) {
 			return;
+		}
 
 		// <input type="password" name="passwrd1" id="smf_autov_pwmain" size="50" tabindex="3" class=" invalid_input">
 		self::buildJavascript('#smf_autov_pwmain', '#smf_autov_pwmain_div');
 	}
-	
+
 
 	/**
 	 * When the password field is setup on the profile pages, send in some javascript.
 	 *
 	 * @calledby call_integration_hook('integrate_setup_profile_context', array(&$fields));
 	 * @param array $fields User profile fields we are loading.
-	 * @return void
 	 */
 	public static function addToProfileContext(array $fields): void
 	{
 		global $modSettings;
 
 		// If we are not loading the password field, don't bother.
-		if (!in_array('passwrd1', $fields) || empty($modSettings['enableHibPjs']))
+		if (!in_array('passwrd1', $fields) || empty($modSettings['enableHibPjs'])) {
 			return;
+		}
 
 		// <input type="password" name="passwrd1" id="passwrd1" size="20" value="">
 		self::buildJavascript('#passwrd1', '#passwrd1');
@@ -156,7 +158,7 @@ class hibp
 						
 							// Build the box.
 							if (typeof $hibpBox === "undefined")
-								$hibpBox = $($hibp_attachSelector).parent().append(' . Utils::JavaScriptEscape('<div class="errorbox pagesection" style="width: 78%;">' . Lang::$txt['profile_error_password_hibp']. '</div>') . ');
+								$hibpBox = $($hibp_attachSelector).parent().append(' . Utils::JavaScriptEscape('<div class="errorbox pagesection" style="width: 78%;">' . Lang::$txt['profile_error_password_hibp'] . '</div>') . ');
 						
 							// It was found.
 							if ($res === true)
@@ -184,9 +186,11 @@ class hibp
 		Lang::load('Hibp');
 
 		// Find the last password setting.
-		foreach ($config_vars as $id => $val)
-			if (is_array($val) && $val[1] == 'enable_password_conversion' && is_string($config_vars[$id + 1]) && $config_vars[$id + 1] == '')
+		foreach ($config_vars as $id => $val) {
+			if (is_array($val) && $val[1] == 'enable_password_conversion' && is_string($config_vars[$id + 1]) && $config_vars[$id + 1] == '') {
 				break;
+			}
+		}
 
 		$varsA = array_slice($config_vars, 0, $id + 1);
 		$varsB = array_slice($config_vars, $id + 1);
@@ -200,11 +204,11 @@ class hibp
 		$config_vars = array_merge($varsA, $new_vars, $varsB);
 
 		// Saving?
-		if (isset($_GET['save']))
-		{
+		if (isset($_GET['save'])) {
 			// Can't have one without the other.
-			if (!empty($_POST['enableHibPjs']) && empty($_POST['enableHibP']))
+			if (!empty($_POST['enableHibPjs']) && empty($_POST['enableHibP'])) {
 				$_POST['enableHibP'] = $_POST['enableHibPjs'];
+			}
 		}
 	}
 }

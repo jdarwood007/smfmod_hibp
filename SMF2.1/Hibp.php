@@ -19,9 +19,10 @@ function hibp_password(string $password, bool $hashed = false): ?bool
 {
 	global $smcFunc;
 
-	if (!$hashed)
+	if (!$hashed) {
 		$password = sha1($password);
-	
+	}
+
 	$passhash_prefix = $smcFunc['substr']($password, 0, 5);
 	$passhash_suffix = $smcFunc['substr']($password, 5);
 
@@ -34,21 +35,25 @@ function hibp_password(string $password, bool $hashed = false): ?bool
 	$results = fetch_web_data($call_url);
 
 	// Invalid results, just pass them through.
-	if (empty($results))
+	if (empty($results)) {
 		return null;
+	}
 
 	// Sure we could make an array of the data, but we just want to see if its found.
 	$found = preg_match(
 		'~\s+' . preg_quote($passhash_suffix) . ':\d+~i',
-		$results
-		);
+		$results,
+	);
 
 	// We found a result, its found.
-	if ($found === 1)
+	if ($found === 1) {
 		return true;
+	}
+
 	// No result, return false.
-	elseif ($found === 0)
+	if ($found === 0) {
 		return false;
+	}
 
 	// $found returned something invalid, also fail.
 	return null;
@@ -62,22 +67,21 @@ function hibp_password(string $password, bool $hashed = false): ?bool
  * @param string $username Currently ignored by this hook.
  * @param array $restrict_in Currently ignored by this hook.
  * @param string $pass_error A password error if any.  If this is set, we won't process our hook.
- * @return void
  */
 function hibp_validatePassword(string $password, string $username, array $restrict_in, string &$pass_error): void
 {
 	global $modSettings;
 
 	// If another hook has set this, leave it alone.
-	if (!empty($pass_error) || empty($modSettings['enableHibP']))
+	if (!empty($pass_error) || empty($modSettings['enableHibP'])) {
 		return;
+	}
 
 	// Send it to the backend.
 	$res = hibp_password($password);
 
 	// If the result is true, we want to present a error to the prefix of $txt['profile_error_password_*']
-	if ($res === true)
-	{
+	if ($res === true) {
 		loadLanguage('Hibp');
 		$pass_error = 'hibp';
 	}
@@ -88,34 +92,34 @@ function hibp_validatePassword(string $password, string $username, array $restri
  *
  * @calledby call_integration_hook('integrate_load_custom_profile_fields', array($memID, $area));
  * @param array $fields User profile fields we are loading.
- * @return void
  */
 function hibp_load_custom_profile_fields(int $memID, string $area): void
 {
 	global $modSettings;
 
-	if ($area !== 'register' || empty($modSettings['enableHibPjs']))
+	if ($area !== 'register' || empty($modSettings['enableHibPjs'])) {
 		return;
+	}
 
 	// <input type="password" name="passwrd1" id="smf_autov_pwmain" size="50" tabindex="3" class=" invalid_input">
 	hibp_build_javascript('#smf_autov_pwmain', '#smf_autov_pwmain_div');
 }
-	
+
 
 /**
  * When the password field is setup on the profile pages, send in some javascript.
  *
  * @calledby call_integration_hook('integrate_setup_profile_context', array(&$fields));
  * @param array $fields User profile fields we are loading.
- * @return void
  */
 function hibp_setup_profile_context(array $fields): void
 {
 	global $modSettings;
 
 	// If we are not loading the password field, don't bother.
-	if (!in_array('passwrd1', $fields) || empty($modSettings['enableHibPjs']))
+	if (!in_array('passwrd1', $fields) || empty($modSettings['enableHibPjs'])) {
 		return;
+	}
 
 	// <input type="password" name="passwrd1" id="passwrd1" size="20" value="">
 	hibp_build_javascript('#passwrd1', '#passwrd1');
@@ -152,7 +156,7 @@ function hibp_build_javascript(string $selector, string $errorSelector): void
 						
 						// Build the box.
 						if (typeof $hibpBox === "undefined")
-							$hibpBox = $($hibp_attachSelector).parent().append(' . JavaScriptEscape('<div class="errorbox pagesection" style="width: 78%;">' . $txt['profile_error_password_hibp']. '</div>') . ');
+							$hibpBox = $($hibp_attachSelector).parent().append(' . JavaScriptEscape('<div class="errorbox pagesection" style="width: 78%;">' . $txt['profile_error_password_hibp'] . '</div>') . ');
 						
 						// It was found.
 						if ($res === true)
@@ -164,7 +168,7 @@ function hibp_build_javascript(string $selector, string $errorSelector): void
 			});
 		});
 	');
-	
+
 	/*
 	<div class="errorbox pagesection" style="width: 78%;">test</div>
 	*/
@@ -186,26 +190,28 @@ function hibp_general_security_settings(array &$config_vars): void
 	loadLanguage('Hibp');
 
 	// Find the last password setting.
-	foreach ($config_vars as $id => $val)
-		if (is_array($val) && $val[1] == 'enable_password_conversion' && is_string($config_vars[$id + 1]) && $config_vars[$id + 1] == '')
+	foreach ($config_vars as $id => $val) {
+		if (is_array($val) && $val[1] == 'enable_password_conversion' && is_string($config_vars[$id + 1]) && $config_vars[$id + 1] == '') {
 			break;
+		}
+	}
 
 	$varsA = array_slice($config_vars, 0, $id + 1);
 	$varsB = array_slice($config_vars, $id + 1);
 
-	$new_vars = array(
+	$new_vars = [
 		'',
-		array('check', 'enableHibP'),
-		array('check', 'enableHibPjs'),
-	);
+		['check', 'enableHibP'],
+		['check', 'enableHibPjs'],
+	];
 
 	$config_vars = array_merge($varsA, $new_vars, $varsB);
 
 	// Saving?
-	if (isset($_GET['save']))
-	{
+	if (isset($_GET['save'])) {
 		// Can't have one without the other.
-		if (!empty($_POST['enableHibPjs']) && empty($_POST['enableHibP']))
+		if (!empty($_POST['enableHibPjs']) && empty($_POST['enableHibP'])) {
 			$_POST['enableHibP'] = $_POST['enableHibPjs'];
+		}
 	}
 }
