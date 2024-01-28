@@ -15,6 +15,7 @@ use SMF\Lang;
 use SMF\Theme;
 use SMF\User;
 use SMF\Utils;
+use SMF\WebFetch\WebFetchApi;
 
 class hibp
 {
